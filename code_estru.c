@@ -10,19 +10,17 @@ typedef struct Nodo {
 
 void insertarFinal(Nodo** cabeza, int id, char* nombre, int edad);
 Nodo* crearNodo(int id, char* nombre, int edad);
+void mostrarPacientes();
+void ingresarPacientes();
 
-int main(){
+void main(){
    
-    Nodo* cabeza = NULL;
-  
-    insertarFinal(&cabeza,1,"prueba",21);
-     insertarFinal(&cabeza,3,"prueba",21);
-       Nodo* temp = cabeza;
-    while(temp!=NULL){
-    printf("%d",temp->id);
-    temp = temp->siguiente;
-    }
-    return 0;
+   
+    ingresarPacientes();
+   
+    insertarFinal(&cabeza,3,"prueba",21);
+    mostrarPacientes(&cabeza);
+     
 }
 
 
@@ -46,4 +44,28 @@ void insertarFinal(Nodo** cabeza, int id, char* nombre, int edad) {
  }
  temp->siguiente = nuevo;
  }
+}
+
+void mostrarPacientes(Nodo** cabeza){
+       Nodo* temp = *cabeza;
+    while(temp!=NULL){
+    printf("id %d nombre %s edad %i \n",temp->id,temp->nombre,temp->edad);
+    temp = temp->siguiente;
+    }
+   
+}
+void ingresarPacientes(){
+    int id=0;
+    int edad;
+    char si='s';
+    char nombre[50];
+    Nodo* cabeza = NULL;
+    while(si=='s'){
+        printf("ingreda nombre y edad ");
+        scanf("%i %s %i",id,nombre,edad);
+        insertarFinal(&cabeza,id,nombre,edad);
+         printf("desea ingresar otro paciente S/N  ");
+         scanf("%s",si);
+        id++;
+    }
 }
