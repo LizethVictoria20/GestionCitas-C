@@ -1,30 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+//ESTRUCTURA
 typedef struct Nodo {
  int id;
  char nombre[50];
  int edad;
  struct Nodo* siguiente;
 } Nodo;
-
+//PROTORIPOS DE FUNCIONES 
 void insertarFinal(Nodo** cabeza, int id, char* nombre, int edad);
 Nodo* crearNodo(int id, char* nombre, int edad);
 void mostrarPacientes();
 void ingresarPacientes();
+void menu();
+//FUNCION PRINCIPAL
+void main(){
 
-int main(){
-
-Nodo* cabeza = NULL;
-    ingresarPacientes(&cabeza);
-    mostrarPacientes(&cabeza);
-
-    return 0;
+menu();
 
 }
 
 
-
+//CREAR NODO
 Nodo* crearNodo(int id, char* nombre, int edad) {
  Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
  nuevo->id = id;
@@ -33,6 +31,7 @@ Nodo* crearNodo(int id, char* nombre, int edad) {
  nuevo->siguiente = NULL;
  return nuevo;
 }
+//INCERTA NODO
 void insertarFinal(Nodo** cabeza, int id, char* nombre, int edad) {
  Nodo* nuevo = crearNodo(id, nombre, edad);
  if (*cabeza == NULL) {
@@ -48,20 +47,24 @@ void insertarFinal(Nodo** cabeza, int id, char* nombre, int edad) {
 //imprime toda la lista en el orden de ingreso
 void mostrarPacientes(Nodo** cabeza){
        Nodo* temp = *cabeza;
+       if(temp!=NULL){
+       printf("----- id  nombre  edad -----\n");
+       }
     while(temp!=NULL){
-    printf("id %d nombre %s edad %i \n",temp->id,temp->nombre,temp->edad);
+        
+    printf("      %d   %s   %i      \n",temp->id,temp->nombre,temp->edad);
     temp = temp->siguiente;
     }
 
 }
-
-//ingresa los datos ingresados por el usuario 
+//ingresa los datos ingresados por el usuario
 void ingresarPacientes(Nodo** cabeza){
     int id=0;
     int edad;
     char si='s';
-    char nombre[50]; 
-    while(si =='s'){
+    char nombre[50];
+     
+    while(si =='s' || si =='S'){
         printf("ingreda nombre y edad ");
         scanf("%s %i",nombre,&edad);
         insertarFinal(cabeza,id,nombre,edad);
@@ -69,10 +72,23 @@ void ingresarPacientes(Nodo** cabeza){
          scanf("%s",&si);
         id++;
     }
+    menu();
 }
-
-
-
-
-
-
+//MENU DE FUNCIONES 
+void menu(){
+    int opcion;
+    Nodo* cabeza = NULL;
+    printf("----- MENU -----\n");
+    printf("1) AGREGAR PACIENTE\n2) MOSTRAR PACIENTES\n");
+    printf("Elige una opción (1-2): ");
+    scanf("%d", &opcion);
+    switch(opcion){
+    case 1:
+        ingresarPacientes(&cabeza);
+    
+    case 2:
+        mostrarPacientes(&cabeza);
+    
+    }
+    
+}
