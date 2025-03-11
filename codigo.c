@@ -13,11 +13,13 @@ Nodo* crearNodo(int id, char* nombre, int edad);
 void mostrarPacientes();
 void ingresarPacientes();
 
-void main(){
+int main(){
 
 Nodo* cabeza = NULL;
     ingresarPacientes(&cabeza);
     mostrarPacientes(&cabeza);
+
+    return 0;
 
 }
 
@@ -68,7 +70,6 @@ void ingresarPacientes(Nodo** cabeza){
         id++;
     }
 }
-//prueba de commits
 
 
 
