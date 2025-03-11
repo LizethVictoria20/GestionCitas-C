@@ -57,7 +57,7 @@ void mostrarPacientes(Nodo** cabeza){
     }
 
 }
-//ingresa los datos ingresados por el usuario
+//ingresa los datos digitados por el usuario
 void ingresarPacientes(Nodo** cabeza){
     int id=0;
     int edad;
