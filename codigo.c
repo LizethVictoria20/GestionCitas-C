@@ -43,7 +43,7 @@ void insertarFinal(Nodo** cabeza, int id, char* nombre, int edad) {
  temp->siguiente = nuevo;
  }
 }
-
+//imprime toda la lista en el orden de ingreso
 void mostrarPacientes(Nodo** cabeza){
        Nodo* temp = *cabeza;
     while(temp!=NULL){
@@ -52,12 +52,13 @@ void mostrarPacientes(Nodo** cabeza){
     }
 
 }
+
+//ingresa los datos ingresados por el usuario 
 void ingresarPacientes(Nodo** cabeza){
     int id=0;
     int edad;
     char si='s';
-    char nombre[50];
-     
+    char nombre[50]; 
     while(si =='s'){
         printf("ingreda nombre y edad ");
         scanf("%s %i",nombre,&edad);
@@ -67,3 +68,10 @@ void ingresarPacientes(Nodo** cabeza){
         id++;
     }
 }
+//prueba de commits
+
+
+
+
+
+
