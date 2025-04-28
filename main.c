@@ -1,160 +1,236 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// ESTRUCTURA
-typedef struct Nodo
-{
-  int id;
-  char nombre[50];
-  int edad;
-  struct Nodo *siguiente;
+
+// Definiciones
+#define MAX 100
+
+// Estructura de Nodo para pacientes
+typedef struct Nodo {
+    int id;
+    char nombre[50];
+    int edad;
+    struct Nodo *siguiente;
 } Nodo;
-// PROTORIPOS DE FUNCIONES
+
+// Estructura de Cola para citas
+typedef struct Cola {
+    int pacientes[MAX]; // IDs de pacientes
+    int front;
+    int rear;
+} Cola;
+
+// Prototipos de funciones
 void insertarFinal(Nodo **cabeza, int id, char *nombre, int edad);
 Nodo *crearNodo(int id, char *nombre, int edad);
-void mostrarPacientes();
-void ingresarPacientes();
-void menu();
-// FUNCION PRINCIPAL
-int main()
-{
-  //Se declara cabeza para que los datos puedan persistir en la memoria
-  Nodo *cabeza = NULL; 
-  while (1)
-  {
-    menu(&cabeza);
-  }
-  return 0;
-}
+void mostrarPacientes(Nodo **cabeza);
+void ingresarPacientes(Nodo **cabeza, int *ultimoID);
+void eliminarPaciente(Nodo **cabeza, int id);
+void menu(Nodo **cabeza, Cola *cola, int *ultimoID);
 
-// CREAR NODO
-Nodo *crearNodo(int id, char *nombre, int edad)
-{
-  Nodo *nuevo = (Nodo *)malloc(sizeof(Nodo));
-  nuevo->id = id;
-  strcpy(nuevo->nombre, nombre);
-  nuevo->edad = edad;
-  nuevo->siguiente = NULL;
-  return nuevo;
-}
-// Ingresa nodo
-void insertarFinal(Nodo **cabeza, int id, char *nombre, int edad)
-{
-  Nodo *nuevo = crearNodo(id, nombre, edad);
-  if (*cabeza == NULL)
-  {
-    *cabeza = nuevo;
-  }
-  else
-  {
-    Nodo *temp = *cabeza;
-    while (temp->siguiente != NULL)
-    {
-      temp = temp->siguiente;
+void inicializarCola(Cola *c);
+int estaVacia(Cola *c);
+void encolar(Cola *c, int id);
+int desencolar(Cola *c);
+Nodo* buscarPaciente(Nodo *cabeza, int id);
+void atenderPaciente(Cola *cola, Nodo *cabeza);
+
+// Función principal
+int main() {
+    Nodo *cabeza = NULL;
+    Cola cola;
+    int ultimoID = 0; // ID autoincremental para pacientes
+    inicializarCola(&cola);
+
+    while (1) {
+        menu(&cabeza, &cola, &ultimoID);
     }
-    temp->siguiente = nuevo;
-  }
+    return 0;
 }
-// Imprime toda la lista en el orden de ingreso
-void mostrarPacientes(Nodo **cabeza)
-{
-  Nodo *temp = *cabeza;
-  if (temp == NULL)
-  {
-    printf("No hay pacientes registrados.\n");
-    return;
-  }
-  if (temp != NULL)
-  {
+
+// Crear nodo
+Nodo *crearNodo(int id, char *nombre, int edad) {
+    Nodo *nuevo = (Nodo *)malloc(sizeof(Nodo));
+    nuevo->id = id;
+    strcpy(nuevo->nombre, nombre);
+    nuevo->edad = edad;
+    nuevo->siguiente = NULL;
+    return nuevo;
+}
+
+// Insertar nodo al final de la lista
+void insertarFinal(Nodo **cabeza, int id, char *nombre, int edad) {
+    Nodo *nuevo = crearNodo(id, nombre, edad);
+    if (*cabeza == NULL) {
+        *cabeza = nuevo;
+    } else {
+        Nodo *temp = *cabeza;
+        while (temp->siguiente != NULL) {
+            temp = temp->siguiente;
+        }
+        temp->siguiente = nuevo;
+    }
+}
+
+// Mostrar pacientes
+void mostrarPacientes(Nodo **cabeza) {
+    Nodo *temp = *cabeza;
+    if (temp == NULL) {
+        printf("No hay pacientes registrados.\n");
+        return;
+    }
     printf("ID\tNombre\tEdad\n");
-  }
-  while (temp != NULL)
-  {
-
-    printf("%d\t %s\t %i\n", temp->id, temp->nombre, temp->edad);
-    temp = temp->siguiente;
-  }
-}
-// Ingresa los datos digitados por el usuario
-void ingresarPacientes(Nodo **cabeza)
-{
-  int id = 0;
-  int edad;
-  char nombre[50];
-  int users;
- 
-  printf("Ingrese la cantidad de usuarios que desea registrar: ");
-  scanf("%i", &users);
-
-  for (int i = 1; i <= users; i++)
-  {
-    printf("Ingresar nombre del paciente %i: ", i);
-    scanf("%s", nombre);
-    printf("Ingrese edad: ");
-    scanf("%i", &edad);
-    insertarFinal(cabeza, id, nombre, edad);
-    id++;
-  }
+    while (temp != NULL) {
+        printf("%d\t%s\t%d\n", temp->id, temp->nombre, temp->edad);
+        temp = temp->siguiente;
+    }
 }
 
-void eliminarPaciente(Nodo **cabeza, int id)
-{
-  printf("Ingrese el ID del paciente a eliminar: ");
-  scanf("%d", &id);
-  if (*cabeza == NULL)
-  {
-    printf("No hay pacientes registrados.\n");
-    return;
-  }
+// Ingresar pacientes
+void ingresarPacientes(Nodo **cabeza, int *ultimoID) {
+    int edad;
+    char nombre[50];
+    int users;
 
-  Nodo *temp = *cabeza;
-  Nodo *anterior = NULL;
+    printf("Ingrese la cantidad de usuarios que desea registrar: ");
+    scanf("%d", &users);
 
-  if (temp != NULL && temp->id == id)
-  {
-    *cabeza = temp->siguiente;
+    for (int i = 0; i < users; i++) {
+        printf("Ingresar nombre del paciente %d: ", i + 1);
+        scanf("%s", nombre);
+        printf("Ingrese edad: ");
+        scanf("%d", &edad);
+        insertarFinal(cabeza, *ultimoID, nombre, edad);
+        printf("Paciente registrado con ID: %d\n", *ultimoID);
+        (*ultimoID)++;
+    }
+}
+
+// Eliminar paciente
+void eliminarPaciente(Nodo **cabeza, int id) {
+    printf("Ingrese el ID del paciente a eliminar: ");
+    scanf("%d", &id);
+    if (*cabeza == NULL) {
+        printf("No hay pacientes registrados.\n");
+        return;
+    }
+
+    Nodo *temp = *cabeza;
+    Nodo *anterior = NULL;
+
+    if (temp != NULL && temp->id == id) {
+        *cabeza = temp->siguiente;
+        free(temp);
+        printf("Paciente con ID %d eliminado correctamente.\n", id);
+        return;
+    }
+
+    while (temp != NULL && temp->id != id) {
+        anterior = temp;
+        temp = temp->siguiente;
+    }
+
+    if (temp == NULL) {
+        printf("Paciente con ID %d no encontrado.\n", id);
+        return;
+    }
+
+    anterior->siguiente = temp->siguiente;
     free(temp);
     printf("Paciente con ID %d eliminado correctamente.\n", id);
-    return;
-  }
-
-  while (temp != NULL && temp->id != id)
-  {
-    anterior = temp;
-    temp = temp->siguiente;
-  }
-
-  if (temp == NULL)
-  {
-    printf("Paciente con ID %d no encontrado.\n", id);
-    return;
-  }
-
-  anterior->siguiente = temp->siguiente;
-  free(temp);
-  printf("Paciente con ID %d eliminado correctamente.\n", id);
 }
 
-// MENU DE FUNCIONES
-void menu(Nodo **cabeza)
-{
-  int opcion, id;
-  printf("----- MENU -----\n");
-  printf("1) AGREGAR PACIENTES\n2) MOSTRAR PACIENTES\n3) ELIMINAR PACIENTE POR ID\n");
-  printf("Elige una opción (1-3): ");
-  scanf("%d", &opcion);
-  switch (opcion)
-  {
-  case 1:
-    ingresarPacientes(cabeza);
-    break;
-  case 2:
-    mostrarPacientes(cabeza);
-    break;
-  case 3:
-    eliminarPaciente(cabeza, id);
-    break;
-  default:
-    printf("Opción no válida.\n");
-  }
+// Inicializar cola
+void inicializarCola(Cola *c) {
+    c->front = -1;
+    c->rear = -1;
+}
+
+// Verificar si cola está vacía
+int estaVacia(Cola *c) {
+    return (c->front == -1 || c->front > c->rear);
+}
+
+// Encolar paciente
+void encolar(Cola *c, int id) {
+    if (c->rear == MAX - 1) {
+        printf("¡Cola llena!\n");
+    } else {
+        if (c->front == -1) c->front = 0;
+        c->rear++;
+        c->pacientes[c->rear] = id;
+        printf("Paciente con ID %d agregado a la cola de citas.\n", id);
+    }
+}
+
+// Desencolar paciente
+int desencolar(Cola *c) {
+    if (estaVacia(c)) {
+        printf("No hay pacientes en espera.\n");
+        return -1;
+    } else {
+        int id = c->pacientes[c->front];
+        c->front++;
+        return id;
+    }
+}
+
+// Buscar paciente por ID
+Nodo* buscarPaciente(Nodo *cabeza, int id) {
+    Nodo *temp = cabeza;
+    while (temp != NULL) {
+        if (temp->id == id) {
+            return temp;
+        }
+        temp = temp->siguiente;
+    }
+    return NULL;
+}
+
+// Atender paciente
+void atenderPaciente(Cola *cola, Nodo *cabeza) {
+    int id = desencolar(cola);
+    if (id != -1) {
+        Nodo *paciente = buscarPaciente(cabeza, id);
+        if (paciente != NULL) {
+            printf("Atendiendo al paciente: %s (ID: %d, Edad: %d)\n", paciente->nombre, paciente->id, paciente->edad);
+        } else {
+            printf("Paciente con ID %d no encontrado en la lista.\n", id);
+        }
+    }
+}
+
+// Menú de opciones
+void menu(Nodo **cabeza, Cola *cola, int *ultimoID) {
+    int opcion, id;
+    printf("\n----- MENU -----\n");
+    printf("1) AGREGAR PACIENTES\n");
+    printf("2) MOSTRAR PACIENTES\n");
+    printf("3) ELIMINAR PACIENTE POR ID\n");
+    printf("4) AGENDAR CITA\n");
+    printf("5) ATENDER PACIENTE\n");
+    printf("Elige una opción (1-5): ");
+    scanf("%d", &opcion);
+
+    switch (opcion) {
+    case 1:
+        ingresarPacientes(cabeza, ultimoID);
+        break;
+    case 2:
+        mostrarPacientes(cabeza);
+        break;
+    case 3:
+        eliminarPaciente(cabeza, id);
+        break;
+    case 4:
+        printf("Ingrese el ID del paciente para agendar cita: ");
+        scanf("%d", &id);
+        encolar(cola, id);
+        break;
+    case 5:
+        atenderPaciente(cola, *cabeza);
+        break;
+    default:
+        printf("Opción no válida.\n");
+    }
 }
