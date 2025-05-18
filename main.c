@@ -4,6 +4,7 @@
 
 // Definiciones
 #define MAX 100
+#define TAMANO 10
 
 // Estructura de Nodo para pacientes
 typedef struct Nodo {
@@ -20,6 +21,15 @@ typedef struct Cola {
     int rear;
 } Cola;
 
+typedef struct HashNode
+{
+    int id;
+    char nombre[50];
+    struct HashNode *siguiente;
+} HashNode;
+
+HashNode *tabla[TAMANO];
+
 // Prototipos de funciones
 void insertarFinal(Nodo **cabeza, int id, char *nombre, int edad);
 Nodo *crearNodo(int id, char *nombre, int edad);
@@ -35,17 +45,40 @@ int desencolar(Cola *c);
 Nodo* buscarPaciente(Nodo *cabeza, int id);
 void atenderPaciente(Cola *cola, Nodo *cabeza);
 
-// Función principal
-int main() {
-    Nodo *cabeza = NULL;
-    Cola cola;
-    int ultimoID = 0; // ID autoincremental para pacientes
-    inicializarCola(&cola);
+void inicializarTablaHash();
+void insertarHash(int id, char *nombre);
+HashNode *buscarHash(int id);
 
-    while (1) {
-        menu(&cabeza, &cola, &ultimoID);
+int funcionHash(int id) {
+    return id % TAMANO;
+}
+
+void inicializarTablaHash() {
+    for (int i = 0; i < TAMANO; i++)
+    {
+        tabla[i] = NULL;
     }
-    return 0;
+}
+
+void insertarHash(int id, char *nombre) {
+    int indice = funcionHash(id);
+    HashNode *nuevo = (HashNode *)malloc(sizeof(HashNode));
+    nuevo->id = id;
+    strcpy(nuevo->nombre, nombre);
+    nuevo->siguiente = tabla[indice];
+    tabla[indice] = nuevo;
+}
+
+HashNode *buscarHash(int id) {
+    int indice = funcionHash(id);
+    HashNode *actual = tabla[indice];
+    while (actual != NULL)
+    {
+        if (actual->id == id)
+            return actual;
+        actual = actual->siguiente;
+    }
+    return NULL;
 }
 
 // Crear nodo
@@ -61,6 +94,7 @@ Nodo *crearNodo(int id, char *nombre, int edad) {
 // Insertar nodo al final de la lista
 void insertarFinal(Nodo **cabeza, int id, char *nombre, int edad) {
     Nodo *nuevo = crearNodo(id, nombre, edad);
+    insertarHash(id, nombre);
     if (*cabeza == NULL) {
         *cabeza = nuevo;
     } else {
@@ -175,7 +209,7 @@ int desencolar(Cola *c) {
     }
 }
 
-// Buscar paciente por ID
+// Buscar paciente en lista enlazada
 Nodo* buscarPaciente(Nodo *cabeza, int id) {
     Nodo *temp = cabeza;
     while (temp != NULL) {
@@ -209,7 +243,8 @@ void menu(Nodo **cabeza, Cola *cola, int *ultimoID) {
     printf("3) ELIMINAR PACIENTE POR ID\n");
     printf("4) AGENDAR CITA\n");
     printf("5) ATENDER PACIENTE\n");
-    printf("Elige una opción (1-5): ");
+    printf("6) BUSCAR PACIENTE RÁPIDO (HASH)\n");
+    printf("Elige una opción (1-6): ");
     scanf("%d", &opcion);
 
     switch (opcion) {
@@ -230,7 +265,35 @@ void menu(Nodo **cabeza, Cola *cola, int *ultimoID) {
     case 5:
         atenderPaciente(cola, *cabeza);
         break;
+    case 6:
+        printf("Ingrese el ID del paciente a buscar rápidamente: ");
+        scanf("%d", &id);
+        HashNode *encontrado = buscarHash(id);
+        if (encontrado != NULL)
+        {
+            printf("Paciente encontrado: %s (ID: %d)\n", encontrado->nombre, encontrado->id);
+        }
+        else
+        {
+            printf("Paciente no encontrado en la tabla hash.\n");
+        }
+        break;
     default:
         printf("Opción no válida.\n");
     }
+}
+
+int main()
+{
+    Nodo *cabeza = NULL;
+    Cola cola;
+    int ultimoID = 0;
+    inicializarCola(&cola);
+    inicializarTablaHash();
+
+    while (1)
+    {
+        menu(&cabeza, &cola, &ultimoID);
+    }
+    return 0;
 }
